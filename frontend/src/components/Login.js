@@ -1,8 +1,11 @@
 import Header from './Header';
 import { auth } from '../utils/auth';
 import { useForm } from '../hooks/useForm';
+import InfoTooltip from './InfoTooltip';
+import { useState } from 'react';
 
 export default function Login(props) {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
   const { values, handleChange } = useForm({
     email: '',
     password: '',
@@ -18,7 +21,10 @@ export default function Login(props) {
       .then((res) => {
         props.onLogin(res);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setTooltipOpen(true);
+      });
   }
 
   return (
@@ -54,6 +60,8 @@ export default function Login(props) {
         </form>
         <p className="register__undertext">&nbsp;</p>
       </div>
+
+      <InfoTooltip isOpen={tooltipOpen} isSuccess={false} onClose={() => setTooltipOpen(false)} />
     </div>
   );
 }
