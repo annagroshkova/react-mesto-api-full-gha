@@ -25,7 +25,7 @@ export default function App() {
    */
   function handleLogin(res) {
     saveToken(res.token);
-    setToken(res.token);
+    getMyInfo();
   }
 
   function handleLogout() {
@@ -35,11 +35,13 @@ export default function App() {
   }
 
   function getMyInfo() {
+    if (!getToken()) return;
+
     api
       .getUserInfo()
       .then((user) => {
         setCurrentUser(user);
-        navigate('/');
+        setToken(getToken());
       })
       .catch((err) => console.error(err));
   }
@@ -50,7 +52,14 @@ export default function App() {
         <Routes>
           <Route
             path="/"
-            element={<ProtectedRoute loggedIn={token} element={Home} onLogout={handleLogout} />}
+            element={
+              <ProtectedRoute
+                loggedIn={token}
+                element={Home}
+                onLogout={handleLogout}
+                onSetCurrentUser={setCurrentUser}
+              />
+            }
           />
           <Route
             path="/sign-in"

@@ -13,9 +13,11 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const URL_REGEX = /^https?:\/\/(www\.)?[a-z0-9\-._~:/?#[\]@!$&'()*+,;=]*#?$/;
 
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+mongoose.connect(DB_URL);
 
 const allowedCors = [
   'https://anna.nomoredomains.rocks',
@@ -95,4 +97,4 @@ app.use((err, req, res, _next) => {
   res.status(statusCode).send({ message: message || 'На сервере произошла ошибка' });
 });
 
-app.listen(3000);
+app.listen(PORT);

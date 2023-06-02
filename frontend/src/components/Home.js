@@ -11,8 +11,7 @@ import { useContext, useEffect, useState } from 'react';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
 export default function Home(props) {
-  const currentUserFromContext = useContext(CurrentUserContext);
-  const [currentUser, setCurrentUser] = useState(/** @type {import("../types").UserObject} */ {});
+  const currentUser = useContext(CurrentUserContext);
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
@@ -23,16 +22,16 @@ export default function Home(props) {
   const [cards, setCards] = useState(/** @type {import("../types").CardObject[]} */ []);
 
   useEffect(() => {
-    setCurrentUser(currentUserFromContext);
-    Promise.all([api.getInitialCards()])
-      .then(([cards]) => {
+    Promise.all([api.getUserInfo(), api.getInitialCards()])
+      .then(([userInfo, cards]) => {
+        props.onSetCurrentUser(userInfo);
         setCards(cards);
       })
       .catch((err) => console.error(err));
   }, []);
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    const isLiked = card.likes.includes(currentUser._id);
 
     api
       .likeCard(card._id, !isLiked)
@@ -55,7 +54,7 @@ export default function Home(props) {
     api
       .patchUserInfo(user)
       .then((user) => {
-        setCurrentUser(user);
+        props.onSetCurrentUser(user);
         closeAllPopups();
       })
       .catch((err) => console.error(err));
@@ -65,7 +64,7 @@ export default function Home(props) {
     api
       .patchAvatar(avatar)
       .then((user) => {
-        setCurrentUser(user);
+        props.onSetCurrentUser(user);
         closeAllPopups();
       })
       .catch((err) => console.error(err));
